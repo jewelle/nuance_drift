@@ -1,103 +1,60 @@
-String path = "/Users/ericajewell/Downloads/NUANCE-DRIFT/";
+String list_path = "/Users/ericajewell/Downloads/NUANCE-DRIFT/";
 String article_path = "/Users/ericajewell/Downloads/NUANCE-DRIFT/articles/";
-String[] lines;
 Table table;
-String text = "";
 String english_text = "";
 String native_text = "";
 String native_lang = "";
 String title = "";
-float titlewidth;
+float title_width;
 String file_name;
-PFont normal_font;
-PFont georgian;
-PFont greek;
-PFont gujarati;
-PFont hebrew;
-PFont hindi;
-PFont japanese;
-PFont kannada;
-PFont kazakh;
-PFont khmer;
-PFont korean;
-PFont kurdish;
-PFont kyrgyz;
-PFont lao;
-PFont macedonian;
-PFont malayalam;
-PFont marathi;
-PFont mongolian;
-PFont myanmar;
-PFont nepali;
-PFont pashto;
-PFont persian;
-PFont punjabi;
-PFont russian;
-PFont serbian;
-PFont sindhi;
-PFont sinhala;
-PFont tajik;
-PFont tamil;
-PFont telugu;
-PFont thai;
-PFont ukranian;
-PFont urdu;
-PFont uzbek;
-PFont vietnamese;
-PFont yiddish;
-PFont amharic;
-PFont arabic;
-PFont armenian;
-PFont azerbaijani;
-PFont belarusian;
-PFont bengali;
-PFont bulgarian;
-PFont chinese;
-int fontSize = 17;
+int font_size = 17;
 long current_time;
 long starting_time;
 long elapsed_time;
-int slide_delay = 1000; //4290;
+int slide_delay = 1500; //4290;
 int row_number = 0;
 int number_of_rows;
+PFont normal_font, georgian, greek, gujarati, hebrew, hindi, japanese, kannada, 
+      kazakh, khmer, korean, kurdish, lao, macedonian, malayalam, marathi, 
+      myanmar, nepali, pashto, persian, punjabi, sindhi, sinhala, tamil, telugu, 
+      thai, urdu, vietnamese, amharic, arabic, armenian, bengali, chinese;
 //String date = "";
 
 void setup(){
-  size(1300,800,P3D);
-  normal_font = createFont("Rubik-BoldItalic.ttf", fontSize);
-  textFont(normal_font);
-  textSize(fontSize);
-  georgian = createFont("NotoSansGeorgian-CondensedBlack.ttf", fontSize);
-  greek = createFont("NotoSans-BlackItalic.ttf", fontSize);
-  gujarati = createFont("NotoSansGujarati-Bold.ttf", fontSize);
-  hebrew = createFont("NotoSansHebrew-Black.ttf", fontSize);
-  hindi = createFont("NotoSansDevanagari-CondensedBold.ttf", fontSize);
-  japanese = createFont("NotoSansCJKjp-Black.otf", fontSize);
-  kannada = createFont("NotoSansKannada-Bold.ttf", fontSize);
-  kazakh = createFont("NotoSans-BlackItalic.ttf", fontSize);
-  khmer = createFont("NotoSansKhmer-Bold.ttf", fontSize);
-  korean = createFont("NotoSansCJKkr-Bold.otf", fontSize);
-  lao = createFont("NotoSansLao-Bold.ttf", fontSize);
-  malayalam = createFont("NotoSansMalayalam-Bold.ttf", fontSize);
-  marathi = createFont("NotoSansDevanagari-CondensedBold.ttf", fontSize);
-  myanmar = createFont("NotoSansMyanmar-Medium.ttf", fontSize);
-  nepali = createFont("NotoSansDevanagari-CondensedBold.ttf", fontSize);
-  pashto = createFont("NotoKufiArabic-Bold.ttf", fontSize);
-  persian = createFont("NotoKufiArabic-Bold.ttf", fontSize);
-  punjabi = createFont("NotoSansGurmukhi-Bold.ttf", fontSize);
-  sindhi = createFont("NotoKufiArabic-Bold.ttf", fontSize);
-  sinhala = createFont("NotoSansSinhala-Medium.ttf", fontSize);
-  tamil = createFont("NotoSansTamil-Medium.ttf", fontSize);
-  telugu = createFont("NotoSansTelugu-Bold.ttf", fontSize);
-  thai = createFont("NotoSansThai-Bold.ttf", fontSize);
-  urdu = createFont("NotoNaskhArabic-Bold.ttf", fontSize);
-  vietnamese = createFont("NotoSans-BlackItalic.ttf", fontSize);
-  amharic = createFont("NotoSansEthiopic-Bold.ttf", fontSize);
-  arabic = createFont("NotoKufiArabic-Bold.ttf", fontSize);
-  armenian = createFont("NotoSansArmenian-Bold.ttf", fontSize);
-  bengali = createFont("NotoSansBengali-Bold.ttf", fontSize);
-  chinese = createFont("NotoSansCJKsc-Bold.otf", fontSize);
-   noStroke();
+  size(1300,800);
+  textSize(font_size);
+  normal_font = createFont("Rubik-BoldItalic.ttf", font_size);
+  georgian = createFont("NotoSansGeorgian-CondensedBlack.ttf", font_size);
+  greek = createFont("NotoSans-BlackItalic.ttf", font_size);
+  gujarati = createFont("NotoSansGujarati-Bold.ttf", font_size);
+  hebrew = createFont("NotoSansHebrew-Black.ttf", font_size);
+  hindi = createFont("NotoSansDevanagari-CondensedBold.ttf", font_size);
+  japanese = createFont("NotoSansCJKjp-Black.otf", font_size);
+  kannada = createFont("NotoSansKannada-Bold.ttf", font_size);
+  kazakh = createFont("NotoSans-BlackItalic.ttf", font_size);
+  khmer = createFont("NotoSansKhmer-Bold.ttf", font_size);
+  korean = createFont("NotoSansCJKkr-Bold.otf", font_size);
+  lao = createFont("NotoSansLao-Bold.ttf", font_size);
+  malayalam = createFont("NotoSansMalayalam-Bold.ttf", font_size);
+  marathi = createFont("NotoSansDevanagari-CondensedBold.ttf", font_size);
+  myanmar = createFont("NotoSansMyanmar-Medium.ttf", font_size);
+  nepali = createFont("NotoSansDevanagari-CondensedBold.ttf", font_size);
+  pashto = createFont("NotoKufiArabic-Bold.ttf", font_size);
+  persian = createFont("NotoKufiArabic-Bold.ttf", font_size);
+  punjabi = createFont("NotoSansGurmukhi-Bold.ttf", font_size);
+  sindhi = createFont("NotoKufiArabic-Bold.ttf", font_size);
+  sinhala = createFont("NotoSansSinhala-Medium.ttf", font_size);
+  tamil = createFont("NotoSansTamil-Medium.ttf", font_size);
+  telugu = createFont("NotoSansTelugu-Bold.ttf", font_size);
+  thai = createFont("NotoSansThai-Bold.ttf", font_size);
+  urdu = createFont("NotoNaskhArabic-Bold.ttf", font_size);
+  vietnamese = createFont("NotoSans-BlackItalic.ttf", font_size);
+  amharic = createFont("NotoSansEthiopic-Bold.ttf", font_size);
+  arabic = createFont("NotoKufiArabic-Bold.ttf", font_size);
+  armenian = createFont("NotoSansArmenian-Bold.ttf", font_size);
+  bengali = createFont("NotoSansBengali-Bold.ttf", font_size);
+  chinese = createFont("NotoSansCJKsc-Bold.otf", font_size);
+  noStroke();
   //date = year() + "-" + month() + "-" + day();
   get_new_file();
   boolean loaded = false;
@@ -129,7 +86,7 @@ void draw(){
   background(255,255,255);
   fill(50);
   textFont(normal_font);
-  text(title, (width/2)-(titlewidth/2), 30);
+  text(title, (width/2)-(title_width/2), 30);
   text(native_lang, 30, 70);
   text("English", 610, 70);
   text(english_text, 610, 90, 550, 650);
@@ -163,13 +120,12 @@ void draw(){
   if (row_number == 88) textFont(armenian);
   if (row_number == 92) textFont(bengali);
   if (row_number == 98) textFont(chinese);
-  
   text(native_text, 30, 90, 550, 650);
 }
 
 void get_new_file(){
-  //table = loadTable(path + date + ".csv");
-  table = loadTable(path + "article_titles.csv");
+  //table = loadTable(list_path + date + ".csv");
+  table = loadTable(list_path + "article_titles.csv");
   boolean foundfile = false;
   while (foundfile == false){
      try {
@@ -177,8 +133,8 @@ void get_new_file(){
           row.setString(0, "YES");
           file_name = row.getString(1);
           title = file_name.replace (".csv", "");
-          titlewidth = textWidth(title);
-          println(path + file_name);
+          title_width = textWidth(title);
+          println(article_path + file_name);
           foundfile = true;
       }
       catch (Exception e) {
@@ -189,13 +145,14 @@ void get_new_file(){
           foundfile = false;
       }
     }
-  saveTable(table, path + "article_titles.csv");
-  //saveTable(table, path + date + ".csv");
+  saveTable(table, list_path + "article_titles.csv");
+  //saveTable(table, list_path + date + ".csv");
 }
 
 void get_new_text(){
   row_number += 1;
   if (row_number > number_of_rows){
+    row_number = 0;
     get_new_file();
     boolean loaded = false;
     while (loaded == false){
@@ -204,7 +161,7 @@ void get_new_text(){
           loaded = true;
       }
       catch (Exception e) {
-        println("couldn't load file");
+          println("couldn't load file");
           get_new_file();
           loaded = false;
       }
@@ -214,6 +171,5 @@ void get_new_text(){
     english_text = table.getString(row_number, 2);
     native_text = table.getString(row_number, 1);
     native_lang = table.getString(row_number, 0);
-    //println(text);
   }
 }
