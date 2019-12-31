@@ -7,16 +7,14 @@
 import pyperclip
 import time
 from datetime import date
-from datetime import datetime
 from selenium.webdriver.common.keys import Keys
+from selenium.common.exceptions import ElementClickInterceptedException
 from selenium import webdriver
-from textwrap import wrap
 import csv
 
 
 driver = webdriver.Chrome("/Users/ericajewell/Downloads/chromedriver")
-
-sources = ["LOCAL_10", "WLRN", "SFL_TIMES", "MIAMI_HERALD","MIAMI_NEW_TIMES"]
+sources = ["WLRN", "LOCAL_10", "SFL_TIMES", "MIAMI_HERALD"]
 language_keys = [
 	"eo","et","tl","fi","fr","fy",
 	"gl","ka","de","el","gu","ht","ha",
@@ -53,10 +51,12 @@ language_names = [
 	]
 
 current_source = 0
-
 today = str(date.today())
 
-try: # check whether the master CSV file of the day exists
+# check whether the master CSV file of the day exists
+# for this version, just using a single file rather than 
+# rewriting every day since it's only up for 2 days
+try:
     with open("article_titles.csv", "r") as csvfile:
     #with open(today + ".csv", "r") as csvfile:
 		print("file exists")
@@ -89,8 +89,6 @@ def scrape_urls():
 				writer.writerow([today])
 				writer.writerow(["NUM", "USED", "SOURCE", "URL"])
 	"""
-	driver = webdriver.Chrome("/Users/ericajewell/Downloads/chromedriver")
-
 	num_of_rows = 0
 	with open("urls.csv", "r") as csvfile:
 	   	for line in csvfile: num_of_rows+=1
@@ -156,10 +154,11 @@ def scrape_urls():
 
 	print(num_of_urls)
 
-scrape_urls()
+#scrape_urls()
 
 while True:
-	# --- GET URL FROM LIST ---
+
+# --- GET URL FROM LIST ---
 
 	# get a new url to use
 	with open("urls.csv", "r+") as csvfile:
@@ -201,62 +200,57 @@ while True:
 	# need to ensure that the file isn't being overwritten at the same time that this is running
 
 
-	# --- GET TEXT FROM ARTICLE ---
+# --- GET TEXT FROM ARTICLE ---
 
 	driver.get(current_url)
+	time.sleep(2)
 	list_of_lines = []
-	# LOCAL 10
+	# WLRN
 	if (current_source == 0): 
 		title = driver.find_element_by_tag_name("h1").text.encode('ascii', 'ignore')
 		list_of_lines.append(title)#.text.encode('ascii', 'ignore')) # store text in ascii since it's going back into the browser
-		#print(title.text.encode("utf-8")) # print in utf for reading in the console
-		article_body = driver.find_elements_by_xpath("/html/body/div[1]/section/main/article/section")
-		for element in article_body:
-			list_of_lines.append(element.text.encode('ascii', 'ignore')) # store text in ascii since it's going back into the browser
-			#print(element.text.encode("utf-8")) # print in utf for reading in the console
-	# WLRN
-	if (current_source == 1): 
-		title = driver.find_element_by_tag_name("h1").text.encode('ascii', 'ignore')
-		list_of_lines.append(title)#.text.encode('ascii', 'ignore')) # store text in ascii since it's going back into the browser
-		#print(title.encode("utf-8")) # print in utf for reading in the console
 		article_body = driver.find_elements_by_tag_name("p")
 		for element in article_body:
 			list_of_lines.append(element.text.encode('ascii', 'ignore')) # store text in ascii since it's going back into the browser
-			#print(element.text.encode("utf-8")) # print in utf for reading in the console
+	
+	# LOCAL 10
+	if (current_source == 1): 
+		title = driver.find_element_by_tag_name("h1").text.encode('ascii', 'ignore')
+		list_of_lines.append(title)#.text.encode('ascii', 'ignore')) # store text in ascii since it's going back into the browser
+		article_body = driver.find_elements_by_xpath("/html/body/div[1]/section/main/article/section")
+		for element in article_body:
+			list_of_lines.append(element.text.encode('ascii', 'ignore')) # store text in ascii since it's going back into the browser
+
 	# SFL TIMES
 	if (current_source == 2): 
 		title = driver.find_element_by_tag_name("h1").text.encode('ascii', 'ignore')
 		list_of_lines.append(title)#.text.encode('ascii', 'ignore')) # store text in ascii since it's going back into the browser
-		#print(title.encode("utf-8")) # print in utf for reading in the console
-		#article_body = driver.find_elements_by_css_selector("#post-56213 > div.post-content.clearfix")
 		article_body = driver.find_elements_by_tag_name("p")
 		for element in article_body:
 			if ("You must be logged in" in element.text):
 				break
 			if ("PHOTO COURTESY OF" not in element.text):
 				list_of_lines.append(element.text.encode('ascii', 'ignore')) # store text in ascii since it's going back into the browser
-				#print(element.text.encode("utf-8")) # print in utf for reading in the console
+
 	#if (current_source == 3): # MIAMI HERALD
 		# check if logged in
-	#if (current_source == 4): # MIAMI NEW TIMES
 	
 	original_english_text = "\n" # new line character that will go between each line/element
 	original_english_text = original_english_text.join(list_of_lines) 
-	# ensure that the text is under 5000 characters. if over 5000, google translate won't accept it
-	if (len(original_english_text)) > 4950:
-		correct_word_count = [(original_english_text[i:i+4950]) for i in range(0, len(original_english_text), 4950)] 
+	# ensure that the text is well under 5000 characters. if over 5000, google translate won't accept it
+	if (len(original_english_text)) > 4900:
+		correct_word_count = [(original_english_text[i:i+4900]) for i in range(0, len(original_english_text), 4900)] 
 		english_text = correct_word_count[0]
 	else:
 		english_text = original_english_text
 		if ('\"' in english_text):
-			print("quotation mark in here")
 			english_text = english_text.replace ('\"', '')
 	pyperclip.copy(english_text) # copy the text to the clipboard to paste it in GT later
 	time.sleep(2)
 
-	# --- GET TRANSLATIONS ---
+# --- GET TRANSLATIONS ---
 
-	with open("/articles/" + title + ".csv", "w") as csvfile:
+	with open("/Users/ericajewell/Downloads/NUANCE-DRIFT/articles/" + title + ".csv", "w") as csvfile:
 		writer = csv.writer(csvfile)
 		writer.writerow(["Language", "Native Language", "Translated Back to English"]) # column titles
 		writer.writerow(["English", english_text, english_text]) # write first english version in columns 1 and 2
@@ -268,17 +262,26 @@ while True:
 			source_text.send_keys(Keys.SHIFT, Keys.INSERT) # paste, might need to be changed for Linux (CTRL)
 			time.sleep(3)
 			copy_button = driver.find_element_by_xpath("/html/body/div[2]/div[1]/div[2]/div[1]/div[1]/div[2]/div[3]/div[1]/div[4]/div[4]/div")
-			copy_button.click()
-			native_text = pyperclip.paste().encode('ascii', 'ignore')
-			if ('\"' in native_text):
-				print("quotation mark in here")
-				native_text = native_text.replace ('\"', '')
-				# remove quotes
-			#native_text = pyperclip.paste().encode('utf-8')
-			if (len(native_text)) > 4950:
-				correct_word_count = [(native_text[i:i+4950]) for i in range(0, len(native_text), 4950)] 
-				native_text = correct_word_count[0]
-				pyperclip.copy(native_text)
+			try:
+				copy_button.click()
+			except ElementClickInterceptedException:
+				print("ElementClickInterceptedException")
+				driver.execute_script("arguments[0].click();", copy_button)
+			native_text_utf = pyperclip.paste().encode('utf-8')
+			native_text_ascii = pyperclip.paste().encode('ascii', 'ignore')
+			if (len(native_text_ascii)) > 4900:
+				correct_word_count = [(native_text_ascii[i:i+4900]) for i in range(0, len(native_text_ascii), 4900)] 
+				native_text_ascii = correct_word_count[0]
+			if (len(native_text_utf)) > 4900:
+				correct_word_count = [(native_text_utf[i:i+4900]) for i in range(0, len(native_text_utf), 4900)] 
+				native_text_utf = correct_word_count[0]
+			# remove quotes
+			if ('\"' in native_text_ascii):
+				native_text_ascii = native_text_ascii.replace ('\"', '')
+				pyperclip.copy(native_text_ascii)
+			if ('\"' in native_text_utf):
+				native_text_utf = native_text_utf.replace ('\"', '')
+				#pyperclip.copy(native_text_utf)
 			time.sleep(1)
 			# from new language back to english
 			driver.get("https://translate.google.com/#view=home&op=translate&sl=" + key + "&tl=en")
@@ -286,15 +289,25 @@ while True:
 			source_text.send_keys(Keys.SHIFT, Keys.INSERT)
 			time.sleep(3)
 			copy_button = driver.find_element_by_xpath("/html/body/div[2]/div[1]/div[2]/div[1]/div[1]/div[2]/div[3]/div[1]/div[4]/div[4]/div")
-			copy_button.click()
+			try:
+				copy_button.click()
+			except ElementClickInterceptedException:
+				print("ElementClickInterceptedException")
+				driver.execute_script("arguments[0].click();", copy_button)
+			# might need to make this Ascii because weird things sometimes happen
 			#english_text = pyperclip.paste().encode('ascii', 'ignore')
-			english_text = pyperclip.paste().encode('utf-8')
-			if ('\"' in english_text):
-				english_text = english_text.replace ('\"', '')
+			english_text_ascii = pyperclip.paste().encode('ascii', 'ignore')
+			english_text_utf = pyperclip.paste().encode('utf-8')
+			if ('\"' in english_text_ascii):
+				english_text_ascii = english_text_ascii.replace ('\"', '')
+				pyperclip.copy(english_text_ascii)
+			if ('\"' in english_text_utf):
+				english_text_utf = english_text_utf.replace ('\"', '')
 			time.sleep(1)
-			writer.writerow([name, native_text.encode('utf-8'), english_text]) # write new row with the language, original text, version translated back into english
+			# write new row with the language, original text, version translated back into english
+			writer.writerow([name, native_text_utf, english_text_utf])
 
-	# only add this file to the list of files once it's done
+	# only add this file to the list of files only once it's done
 	csv_overwrite = list() # list to store data for the overwritten CSV file
 	# title should be day
 	with open("article_titles.csv", "r") as csvfile:
