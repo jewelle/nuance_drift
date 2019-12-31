@@ -1,17 +1,8 @@
 # COPY PASTE
+# - get URLs for news articles
 # - go to a news URL, copy headline and article text
 # - paste in google translate and cycle through each language then back to english
 # - store each full translation in a new csv file
-
-# TO DO
-# - figure out how to best display changing text
-# - create system for saving CSV filenames
-# - deal with other scripts and missing apostrophes, if necessary
-# - get text from sites other than Local 10
-# - if miami herald and not logged in, log in
-# - call the url_scraper script occassionally (perhaps from within this one) - how many times per day?
-# - check robustness of xpath / css stuff
-
 
 import pyperclip
 import time
@@ -25,7 +16,7 @@ import csv
 
 driver = webdriver.Chrome("/Users/ericajewell/Downloads/chromedriver")
 
-sources = ["LOCAL_10","MIAMI_HERALD","MIAMI_NEW_TIMES","SFL_TIMES","WLRN"]
+sources = ["LOCAL_10", "WLRN", "SFL_TIMES", "MIAMI_HERALD","MIAMI_NEW_TIMES"]
 language_keys = [
 	"eo","et","tl","fi","fr","fy",
 	"gl","ka","de","el","gu","ht","ha",
@@ -60,15 +51,119 @@ language_names = [
 	"Bengali","Bosnian","Bulgarian","Catalan","Cebuano","Chichewa","Chinese",
 	"Corsican","Croatian","Czech","Danish","Dutch"
 	]
+
 current_source = 0
+
 today = str(date.today())
 
-while True:
+try: # check whether the master CSV file of the day exists
+    with open("article_titles.csv", "r") as csvfile:
+    #with open(today + ".csv", "r") as csvfile:
+		print("file exists")
+except IOError: # if there"s no file, create one
+    with open("article_titles.csv", "w") as csvfile:
+    #with open(today + ".csv", "w") as csvfile:
+    	writer = csv.writer(csvfile)
+    	writer.writerow(["USED", "FILENAME"])
+    	print("creating new file")
 
-# --- GET URL FROM LIST ---
+def scrape_urls():
+	date = today
+	try: # check whether the file exists
+	    with open("urls.csv", "r") as csvfile:
+			reader = csv.reader(csvfile)
+			date = next(reader) # the date is stored in the first line of the file
+			if today in date:
+				print("same date")
+	except IOError: # if there"s no file, create one
+	    with open("urls.csv", "w") as csvfile:
+			writer = csv.writer(csvfile)
+			writer.writerow([today]) # add time
+			writer.writerow(["NUM", "USED", "SOURCE", "URL"])
+			print("creating new file")
+	"""
+	if today not in date: # if this is a new day, erase old data
+			print("not in date")
+			with open("urls.csv", "w") as csvfile:
+				writer = csv.writer(csvfile)
+				writer.writerow([today])
+				writer.writerow(["NUM", "USED", "SOURCE", "URL"])
+	"""
+	driver = webdriver.Chrome("/Users/ericajewell/Downloads/chromedriver")
+
+	num_of_rows = 0
+	with open("urls.csv", "r") as csvfile:
+	   	for line in csvfile: num_of_rows+=1
+	num_of_urls = num_of_rows-2
+
+	# - Local 10
+	driver.get("https://www.local10.com/")
+	time.sleep(2)
+	elems = driver.find_elements_by_xpath("//a[@href]")
+	for elem in elems:
+		url = elem.get_attribute("href")
+		if "watch-local-10-news-live" not in url and "https://www.local10.com/news/local/" in url: 
+				# open csv file to read and check whether the url is already there
+				in_file_already = False
+				with open("urls.csv", "r") as csvfile:
+		   			for line in csvfile:
+		   				# if the url matches the line
+		   				if url in line:
+		   					in_file_already = True
+				if in_file_already == False:
+					num_of_urls+=1
+					with open("urls.csv", "a") as csvfile:
+		   				writer = csv.writer(csvfile)
+						writer.writerow([num_of_urls, "NO", "LOCAL_10", url])
+	
+	# - South Florida Times
+	driver.get("http://www.sfltimes.com/")
+	time.sleep(2)
+	elems = driver.find_elements_by_xpath("//a[@href]")
+	for elem in elems:
+		url = elem.get_attribute("href")
+		if "http://www.sfltimes.com/news/" in url or "http://www.sfltimes.com/finance/" in url or "http://www.sfltimes.com/education/" in url or "http://www.sfltimes.com/sports/" in url:
+			in_file_already = False
+			with open("urls.csv", "r") as csvfile:
+	   			for line in csvfile:
+	   				# if the url matches the line
+	   				if url in line: 
+	   					in_file_already = True
+			if in_file_already == False:	
+				num_of_urls+=1
+				with open("urls.csv", "a") as csvfile:
+	   				writer = csv.writer(csvfile)
+					writer.writerow([num_of_urls, "NO", "SFL_TIMES", url])
+		
+	# - WLRN
+	driver.get("https://www.wlrn.org/term/local-news/")
+	time.sleep(5)
+	elems = driver.find_elements_by_xpath("//a[@href]")
+	for elem in elems:
+		url = elem.get_attribute("href")
+		if "https://www.wlrn.org/post/" in url:
+			in_file_already = False
+			with open("urls.csv", "r") as csvfile:
+	   			for line in csvfile:
+	   				# if the url matches the line
+	   				if url in line: 
+	   					in_file_already = True
+			if in_file_already == False:	
+				num_of_urls+=1
+				with open("urls.csv", "a") as csvfile:
+	   				writer = csv.writer(csvfile)
+					writer.writerow([num_of_urls, "NO", "WLRN", url])
+
+	print(num_of_urls)
+
+scrape_urls()
+
+while True:
+	# --- GET URL FROM LIST ---
 
 	# get a new url to use
 	with open("urls.csv", "r+") as csvfile:
+		source_available = False
 		reader = csv.reader(csvfile)
 		date = next(reader) # skip first row which contains the date
 		headings = next(reader) # skip second row with column headings
@@ -77,8 +172,13 @@ while True:
 			source = row[2]
 			current_url = row[3]
 			if sources[current_source] in source and used == "NO": # match source and not yet used
-				#print(current_url)
+				source_available = True
 				break
+		if source_available == False:
+			scrape_urls()
+			# if no more urls available... do URL scraper again
+			# might be a problem because then we use the same current_url as previous?
+
 	# overwrite the list of urls to change the current url used column from NO to YES
 	csv_overwrite = list() # list to store data for the overwritten CSV file
 	with open("urls.csv", "r") as csvfile:
@@ -104,37 +204,59 @@ while True:
 	# --- GET TEXT FROM ARTICLE ---
 
 	driver.get(current_url)
-
-	# FOR LOCAL 10 ONLY
 	list_of_lines = []
-	title = driver.find_element_by_tag_name("h1")
-	list_of_lines.append(title.text.encode('ascii', 'ignore')) # store text in ascii since it's going back into the browser
-	#print(title.text.encode("utf-8")) # print in utf for reading in the console
-	article_body = driver.find_elements_by_xpath("/html/body/div[1]/section/main/article/section")
-	for element in article_body:
-		list_of_lines.append(element.text.encode('ascii', 'ignore')) # store text in ascii since it's going back into the browser
-		#print(element.text.encode("utf-8")) # print in utf for reading in the console
+	# LOCAL 10
+	if (current_source == 0): 
+		title = driver.find_element_by_tag_name("h1").text.encode('ascii', 'ignore')
+		list_of_lines.append(title)#.text.encode('ascii', 'ignore')) # store text in ascii since it's going back into the browser
+		#print(title.text.encode("utf-8")) # print in utf for reading in the console
+		article_body = driver.find_elements_by_xpath("/html/body/div[1]/section/main/article/section")
+		for element in article_body:
+			list_of_lines.append(element.text.encode('ascii', 'ignore')) # store text in ascii since it's going back into the browser
+			#print(element.text.encode("utf-8")) # print in utf for reading in the console
+	# WLRN
+	if (current_source == 1): 
+		title = driver.find_element_by_tag_name("h1").text.encode('ascii', 'ignore')
+		list_of_lines.append(title)#.text.encode('ascii', 'ignore')) # store text in ascii since it's going back into the browser
+		#print(title.encode("utf-8")) # print in utf for reading in the console
+		article_body = driver.find_elements_by_tag_name("p")
+		for element in article_body:
+			list_of_lines.append(element.text.encode('ascii', 'ignore')) # store text in ascii since it's going back into the browser
+			#print(element.text.encode("utf-8")) # print in utf for reading in the console
+	# SFL TIMES
+	if (current_source == 2): 
+		title = driver.find_element_by_tag_name("h1").text.encode('ascii', 'ignore')
+		list_of_lines.append(title)#.text.encode('ascii', 'ignore')) # store text in ascii since it's going back into the browser
+		#print(title.encode("utf-8")) # print in utf for reading in the console
+		#article_body = driver.find_elements_by_css_selector("#post-56213 > div.post-content.clearfix")
+		article_body = driver.find_elements_by_tag_name("p")
+		for element in article_body:
+			if ("You must be logged in" in element.text):
+				break
+			if ("PHOTO COURTESY OF" not in element.text):
+				list_of_lines.append(element.text.encode('ascii', 'ignore')) # store text in ascii since it's going back into the browser
+				#print(element.text.encode("utf-8")) # print in utf for reading in the console
+	#if (current_source == 3): # MIAMI HERALD
+		# check if logged in
+	#if (current_source == 4): # MIAMI NEW TIMES
+	
 	original_english_text = "\n" # new line character that will go between each line/element
 	original_english_text = original_english_text.join(list_of_lines) 
 	# ensure that the text is under 5000 characters. if over 5000, google translate won't accept it
-	# problem - this seems to remove line breaks
-	if (len(original_english_text)) > 5000:
-		correct_word_count = [(original_english_text[i:i+5000]) for i in range(0, len(original_english_text), 5000)] 
-		#correct_word_count = wrap(original_english_text, 5000)
+	if (len(original_english_text)) > 4950:
+		correct_word_count = [(original_english_text[i:i+4950]) for i in range(0, len(original_english_text), 4950)] 
 		english_text = correct_word_count[0]
 	else:
 		english_text = original_english_text
+		if ('\"' in english_text):
+			print("quotation mark in here")
+			english_text = english_text.replace ('\"', '')
 	pyperclip.copy(english_text) # copy the text to the clipboard to paste it in GT later
 	time.sleep(2)
 
-
 	# --- GET TRANSLATIONS ---
 
-	current_time = str(datetime.now())
-	# create a system to determine which files are created & displayed each day: 
-	# write the filename to another table with a column for USED YES/NO that has file names sorted by day.
-	# maybe the filename should be the article title
-	with open(current_time + ".csv", "w") as csvfile:
+	with open("/articles/" + title + ".csv", "w") as csvfile:
 		writer = csv.writer(csvfile)
 		writer.writerow(["Language", "Native Language", "Translated Back to English"]) # column titles
 		writer.writerow(["English", english_text, english_text]) # write first english version in columns 1 and 2
@@ -144,12 +266,17 @@ while True:
 			driver.get("https://translate.google.com/#view=home&op=translate&sl=en&tl=" + key)
 			source_text = driver.find_element_by_xpath("/html/body/div[2]/div[1]/div[2]/div[1]/div[1]/div[1]/div[2]/div/div/div[1]/textarea")
 			source_text.send_keys(Keys.SHIFT, Keys.INSERT) # paste, might need to be changed for Linux (CTRL)
-			time.sleep(6)
+			time.sleep(3)
 			copy_button = driver.find_element_by_xpath("/html/body/div[2]/div[1]/div[2]/div[1]/div[1]/div[2]/div[3]/div[1]/div[4]/div[4]/div")
 			copy_button.click()
 			native_text = pyperclip.paste().encode('ascii', 'ignore')
-			if (len(native_text)) > 5000:
-				correct_word_count = [(native_text[i:i+5000]) for i in range(0, len(native_text), 5000)] 
+			if ('\"' in native_text):
+				print("quotation mark in here")
+				native_text = native_text.replace ('\"', '')
+				# remove quotes
+			#native_text = pyperclip.paste().encode('utf-8')
+			if (len(native_text)) > 4950:
+				correct_word_count = [(native_text[i:i+4950]) for i in range(0, len(native_text), 4950)] 
 				native_text = correct_word_count[0]
 				pyperclip.copy(native_text)
 			time.sleep(1)
@@ -157,15 +284,32 @@ while True:
 			driver.get("https://translate.google.com/#view=home&op=translate&sl=" + key + "&tl=en")
 			source_text = driver.find_element_by_xpath("/html/body/div[2]/div[1]/div[2]/div[1]/div[1]/div[1]/div[2]/div/div/div[1]/textarea")
 			source_text.send_keys(Keys.SHIFT, Keys.INSERT)
-			time.sleep(6)
+			time.sleep(3)
 			copy_button = driver.find_element_by_xpath("/html/body/div[2]/div[1]/div[2]/div[1]/div[1]/div[2]/div[3]/div[1]/div[4]/div[4]/div")
 			copy_button.click()
-			english_text = pyperclip.paste().encode('ascii', 'ignore')
+			#english_text = pyperclip.paste().encode('ascii', 'ignore')
+			english_text = pyperclip.paste().encode('utf-8')
+			if ('\"' in english_text):
+				english_text = english_text.replace ('\"', '')
 			time.sleep(1)
-			writer.writerow([name, native_text, english_text]) # write new row with the language, original text, version translated back into english
+			writer.writerow([name, native_text.encode('utf-8'), english_text]) # write new row with the language, original text, version translated back into english
 
+	# only add this file to the list of files once it's done
+	csv_overwrite = list() # list to store data for the overwritten CSV file
+	# title should be day
+	with open("article_titles.csv", "r") as csvfile:
+	#with open(today + ".csv", "r") as csvfile:
+		reader = csv.reader(csvfile)
+		for row in reader:
+			csv_overwrite.append(row)
+		csv_overwrite.append(["NO", title + ".csv"])
+	with open("article_titles.csv", "w") as writeFile:
+	#with open(today + ".csv", "w") as writeFile:
+	    writer = csv.writer(writeFile)
+	    writer.writerows(csv_overwrite)
+	
 	# ensure that the next article will be from a different source
-	if current_source != 4:
+	if current_source != 2: #if current_source != 4:
 		current_source += 1
 	else:
 		current_source = 0
