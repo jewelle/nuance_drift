@@ -6,11 +6,16 @@
 
 import pyperclip
 import time
+import csv
 from datetime import date
+from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import ElementClickInterceptedException
-from selenium import webdriver
-import csv
+from selenium.common.exceptions import NoSuchElementException
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import TimeoutException
 
 
 driver = webdriver.Chrome("/Users/ericajewell/Downloads/chromedriver")
@@ -96,8 +101,14 @@ def scrape_urls():
 
 	# - Local 10
 	driver.get("https://www.local10.com/")
-	time.sleep(2)
-	elems = driver.find_elements_by_xpath("//a[@href]")
+	while True:
+		try:
+			elems = driver.find_elements_by_xpath("//a[@href]")
+			break
+		except TimeoutException:
+			print("Loading took too much time!")
+	#time.sleep(2)
+	#elems = driver.find_elements_by_xpath("//a[@href]")
 	for elem in elems:
 		url = elem.get_attribute("href")
 		if "watch-local-10-news-live" not in url and "https://www.local10.com/news/local/" in url: 
@@ -116,8 +127,14 @@ def scrape_urls():
 	
 	# - South Florida Times
 	driver.get("http://www.sfltimes.com/")
-	time.sleep(2)
-	elems = driver.find_elements_by_xpath("//a[@href]")
+	while True:
+		try:
+			elems = driver.find_elements_by_xpath("//a[@href]")
+			break
+		except TimeoutException:
+			print("Loading took too much time!")
+	#time.sleep(2)
+	#elems = driver.find_elements_by_xpath("//a[@href]")
 	for elem in elems:
 		url = elem.get_attribute("href")
 		if "http://www.sfltimes.com/news/" in url or "http://www.sfltimes.com/finance/" in url or "http://www.sfltimes.com/education/" in url or "http://www.sfltimes.com/sports/" in url:
@@ -135,8 +152,14 @@ def scrape_urls():
 		
 	# - WLRN
 	driver.get("https://www.wlrn.org/term/local-news/")
-	time.sleep(5)
-	elems = driver.find_elements_by_xpath("//a[@href]")
+	while True:
+		try:
+			elems = driver.find_elements_by_xpath("//a[@href]")
+			break
+		except TimeoutException:
+			print("Loading took too much time!")
+	#time.sleep(5)
+	#elems = driver.find_elements_by_xpath("//a[@href]")
 	for elem in elems:
 		url = elem.get_attribute("href")
 		if "https://www.wlrn.org/post/" in url:
@@ -161,22 +184,23 @@ while True:
 # --- GET URL FROM LIST ---
 
 	# get a new url to use
-	with open("urls.csv", "r+") as csvfile:
-		source_available = False
-		reader = csv.reader(csvfile)
-		date = next(reader) # skip first row which contains the date
-		headings = next(reader) # skip second row with column headings
-		for row in reader:
-			used = row[1]
-			source = row[2]
-			current_url = row[3]
-			if sources[current_source] in source and used == "NO": # match source and not yet used
-				source_available = True
-				break
-		if source_available == False:
-			scrape_urls()
-			# if no more urls available... do URL scraper again
-			# might be a problem because then we use the same current_url as previous?
+	source_available = False
+	while source_available == False:
+		with open("urls.csv", "r+") as csvfile:
+			reader = csv.reader(csvfile)
+			date = next(reader) # skip first row which contains the date
+			headings = next(reader) # skip second row with column headings
+			for row in reader:
+				used = row[1]
+				source = row[2]
+				current_url = row[3]
+				if sources[current_source] in source and used == "NO": # match source and not yet used
+					source_available = True
+					#break
+			if source_available == False:
+				scrape_urls()
+				current_source += 1
+			# if no more urls available, do URL scraper and try again
 
 	# overwrite the list of urls to change the current url used column from NO to YES
 	csv_overwrite = list() # list to store data for the overwritten CSV file
@@ -261,11 +285,16 @@ while True:
 			source_text = driver.find_element_by_xpath("/html/body/div[2]/div[1]/div[2]/div[1]/div[1]/div[1]/div[2]/div/div/div[1]/textarea")
 			source_text.send_keys(Keys.SHIFT, Keys.INSERT) # paste, might need to be changed for Linux (CTRL)
 			time.sleep(3)
-			copy_button = driver.find_element_by_xpath("/html/body/div[2]/div[1]/div[2]/div[1]/div[1]/div[2]/div[3]/div[1]/div[4]/div[4]/div")
 			try:
+				copy_button = driver.find_element_by_xpath("/html/body/div[2]/div[1]/div[2]/div[1]/div[1]/div[2]/div[3]/div[1]/div[4]/div[4]/div")
 				copy_button.click()
 			except ElementClickInterceptedException:
 				print("ElementClickInterceptedException")
+				copy_button = driver.find_element_by_xpath("/html/body/div[2]/div[1]/div[2]/div[1]/div[1]/div[2]/div[3]/div[1]/div[4]/div[4]/div")
+				driver.execute_script("arguments[0].click();", copy_button)
+			except NoSuchElementException:
+				print("NoSuchElementException")
+				copy_button = driver.find_element_by_xpath("/html/body/div[2]/div[1]/div[2]/div[1]/div[1]/div[2]/div[3]/div[1]/div[4]/div[4]/div")
 				driver.execute_script("arguments[0].click();", copy_button)
 			native_text_utf = pyperclip.paste().encode('utf-8')
 			native_text_ascii = pyperclip.paste().encode('ascii', 'ignore')
@@ -288,11 +317,16 @@ while True:
 			source_text = driver.find_element_by_xpath("/html/body/div[2]/div[1]/div[2]/div[1]/div[1]/div[1]/div[2]/div/div/div[1]/textarea")
 			source_text.send_keys(Keys.SHIFT, Keys.INSERT)
 			time.sleep(3)
-			copy_button = driver.find_element_by_xpath("/html/body/div[2]/div[1]/div[2]/div[1]/div[1]/div[2]/div[3]/div[1]/div[4]/div[4]/div")
 			try:
+				copy_button = driver.find_element_by_xpath("/html/body/div[2]/div[1]/div[2]/div[1]/div[1]/div[2]/div[3]/div[1]/div[4]/div[4]/div")
 				copy_button.click()
 			except ElementClickInterceptedException:
 				print("ElementClickInterceptedException")
+				copy_button = driver.find_element_by_xpath("/html/body/div[2]/div[1]/div[2]/div[1]/div[1]/div[2]/div[3]/div[1]/div[4]/div[4]/div")
+				driver.execute_script("arguments[0].click();", copy_button)
+			except NoSuchElementException:
+				print("NoSuchElementException")
+				copy_button = driver.find_element_by_xpath("/html/body/div[2]/div[1]/div[2]/div[1]/div[1]/div[2]/div[3]/div[1]/div[4]/div[4]/div")
 				driver.execute_script("arguments[0].click();", copy_button)
 			# might need to make this Ascii because weird things sometimes happen
 			#english_text = pyperclip.paste().encode('ascii', 'ignore')
