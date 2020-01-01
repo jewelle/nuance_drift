@@ -10,11 +10,6 @@ import csv
 from datetime import date
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
-from selenium.common.exceptions import ElementClickInterceptedException
-from selenium.common.exceptions import NoSuchElementException
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
 
 
@@ -196,7 +191,7 @@ while True:
 				current_url = row[3]
 				if sources[current_source] in source and used == "NO": # match source and not yet used
 					source_available = True
-					#break
+					break
 			if source_available == False:
 				scrape_urls()
 				current_source += 1
@@ -285,17 +280,13 @@ while True:
 			source_text = driver.find_element_by_xpath("/html/body/div[2]/div[1]/div[2]/div[1]/div[1]/div[1]/div[2]/div/div/div[1]/textarea")
 			source_text.send_keys(Keys.SHIFT, Keys.INSERT) # paste, might need to be changed for Linux (CTRL)
 			time.sleep(3)
-			try:
-				copy_button = driver.find_element_by_xpath("/html/body/div[2]/div[1]/div[2]/div[1]/div[1]/div[2]/div[3]/div[1]/div[4]/div[4]/div")
-				copy_button.click()
-			except ElementClickInterceptedException:
-				print("ElementClickInterceptedException")
-				copy_button = driver.find_element_by_xpath("/html/body/div[2]/div[1]/div[2]/div[1]/div[1]/div[2]/div[3]/div[1]/div[4]/div[4]/div")
-				driver.execute_script("arguments[0].click();", copy_button)
-			except NoSuchElementException:
-				print("NoSuchElementException")
-				copy_button = driver.find_element_by_xpath("/html/body/div[2]/div[1]/div[2]/div[1]/div[1]/div[2]/div[3]/div[1]/div[4]/div[4]/div")
-				driver.execute_script("arguments[0].click();", copy_button)
+			while True:
+				try:
+					copy_button = driver.find_element_by_xpath("/html/body/div[2]/div[1]/div[2]/div[1]/div[1]/div[2]/div[3]/div[1]/div[4]/div[4]/div")
+					copy_button.click()
+					break
+				except:
+					print("couldn't find it")
 			native_text_utf = pyperclip.paste().encode('utf-8')
 			native_text_ascii = pyperclip.paste().encode('ascii', 'ignore')
 			if (len(native_text_ascii)) > 4900:
@@ -317,17 +308,14 @@ while True:
 			source_text = driver.find_element_by_xpath("/html/body/div[2]/div[1]/div[2]/div[1]/div[1]/div[1]/div[2]/div/div/div[1]/textarea")
 			source_text.send_keys(Keys.SHIFT, Keys.INSERT)
 			time.sleep(3)
-			try:
-				copy_button = driver.find_element_by_xpath("/html/body/div[2]/div[1]/div[2]/div[1]/div[1]/div[2]/div[3]/div[1]/div[4]/div[4]/div")
-				copy_button.click()
-			except ElementClickInterceptedException:
-				print("ElementClickInterceptedException")
-				copy_button = driver.find_element_by_xpath("/html/body/div[2]/div[1]/div[2]/div[1]/div[1]/div[2]/div[3]/div[1]/div[4]/div[4]/div")
-				driver.execute_script("arguments[0].click();", copy_button)
-			except NoSuchElementException:
-				print("NoSuchElementException")
-				copy_button = driver.find_element_by_xpath("/html/body/div[2]/div[1]/div[2]/div[1]/div[1]/div[2]/div[3]/div[1]/div[4]/div[4]/div")
-				driver.execute_script("arguments[0].click();", copy_button)
+			while True:
+				try:
+					copy_button = driver.find_element_by_xpath("/html/body/div[2]/div[1]/div[2]/div[1]/div[1]/div[2]/div[3]/div[1]/div[4]/div[4]/div")
+					copy_button.click()
+					break
+				except:
+					print("couldn't find it")
+					break
 			# might need to make this Ascii because weird things sometimes happen
 			#english_text = pyperclip.paste().encode('ascii', 'ignore')
 			english_text_ascii = pyperclip.paste().encode('ascii', 'ignore')
