@@ -22,6 +22,8 @@ PFont normal_font, georgian, greek, gujarati, hebrew, hindi, japanese, kannada,
 
 void setup(){
   size(1300,800);
+  surface.setLocation(300,400);
+  //fullScreen(2);
   textSize(font_size);
   normal_font = createFont("Rubik-BoldItalic.ttf", font_size);
   georgian = createFont("NotoSansGeorgian-CondensedBlack.ttf", font_size);
