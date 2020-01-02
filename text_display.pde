@@ -100,7 +100,7 @@ void draw(){
   // right text box
   rect((width/2) + (border_margin/2), border_margin*3, (width/2)-(border_margin*1.5), height-(border_margin*4), 15);
   // language titles
-  fill(0, 0, 100); // white
+  fill(0); // black
   textFont(normal_font);
   textAlign(RIGHT, BOTTOM);
   text(native_lang, (width/2) - (border_margin*1.5) + border_margin, border_margin*3);
