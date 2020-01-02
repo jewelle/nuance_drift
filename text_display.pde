@@ -1,5 +1,5 @@
-String list_path = "/Users/ericajewell/Downloads/NUANCE-DRIFT/";
-String article_path = "/Users/ericajewell/Downloads/NUANCE-DRIFT/articles/";
+String list_path = "/home/pi/Documents/nuance-drift/";
+String article_path = "/home/pi/Documents/nuance-drift/";
 Table table;
 int x = 200;
 String english_text = "";
@@ -9,11 +9,12 @@ String title = "";
 float title_width;
 String file_name;
 int font_size = 17;
-int border_margin = 40;
+int border_margin = 60;
+int smaller_margin = 30;
 long current_time;
 long starting_time;
 long elapsed_time;
-int slide_delay = 500; //4290;
+int slide_delay = 5000;
 int row_number = 0;
 int number_of_rows;
 int halfway_done;
@@ -21,15 +22,13 @@ PFont normal_font, georgian, greek, gujarati, hebrew, hindi, japanese, kannada,
       kazakh, khmer, korean, kurdish, lao, macedonian, malayalam, marathi, 
       myanmar, nepali, pashto, persian, punjabi, sindhi, sinhala, tamil, telugu, 
       thai, urdu, vietnamese, amharic, arabic, armenian, bengali, chinese;
-//String date = "";
 
 void setup(){
-  size(1000,600);
   colorMode(HSB, 360, 100, 100); 
-  //fullScreen(2);
+  fullScreen(2);
   textSize(font_size);
   normal_font = createFont("Rubik-BoldItalic.ttf", font_size);
- georgian = createFont("NotoSansGeorgian-CondensedBlack.ttf", font_size);
+  georgian = createFont("NotoSansGeorgian-CondensedBlack.ttf", font_size);
   greek = createFont("NotoSans-BlackItalic.ttf", font_size);
   gujarati = createFont("NotoSansGujarati-Bold.ttf", font_size);
   hebrew = createFont("NotoSansHebrew-Black.ttf", font_size);
@@ -60,7 +59,6 @@ void setup(){
   bengali = createFont("NotoSansBengali-Bold.ttf", font_size);
   chinese = createFont("NotoSansCJKsc-Bold.otf", font_size);
   noStroke();
-  //date = year() + "-" + month() + "-" + day();
   get_new_file();
   boolean loaded = false;
   while (loaded == false){
@@ -70,7 +68,6 @@ void setup(){
     }
     catch (Exception e) {
         e.printStackTrace();
-        println("couldn't load file");
         get_new_file();
         loaded = false;
     }
@@ -98,25 +95,28 @@ void draw(){
   }
   background(x, 44, 100);
   fill(0, 0, 100);
-  rect(border_margin*2 +10, border_margin, width - ((border_margin*4) + 20), border_margin, 7);
-  fill(180, 0, 54);
-  rect(border_margin*2 +10, border_margin, map(row_number, 0, number_of_rows, 0, width - ((border_margin*4) + 20)), border_margin, 7);
-  fill(0, 0, 100);
+  // left text box
   rect(border_margin, border_margin*3, (width/2)-(border_margin*1.5), height-(border_margin*4), 7); 
+  // right text box
   rect((width/2) + (border_margin/2), border_margin*3, (width/2)-(border_margin*1.5), height-(border_margin*4), 7);
   fill(0);
   textFont(normal_font);
-  textAlign(RIGHT, CENTER);
-  text(row_number + "/" + number_of_rows, border_margin*2, border_margin*1.5);
   textAlign(RIGHT, BOTTOM);
   text(native_lang, (width/2) - (border_margin*1.5) + border_margin, border_margin*3);
   textAlign(LEFT, BOTTOM);
   text("English", (width/2) + (border_margin/2), border_margin*3);
+  // loading bar
+  textAlign(RIGHT, CENTER);
+  text(row_number + "/" + number_of_rows, border_margin*2, border_margin*1.5);
+  fill(0, 0, 100);
+  rect(border_margin*2 +10, border_margin, width - ((border_margin*4) + 20), border_margin, 7);
+  fill(180, 0, 54);
+  rect(border_margin*2 +10, border_margin, map(row_number, 0, number_of_rows, 0, width - ((border_margin*4) + 20)), border_margin, 7);
+  // original article title
   textAlign(CENTER, TOP);
-  //text("TITLE OF ORIGINAL ARTICLE:", width/2, height-border_margin);
   text("\"" + title + "\"", width/2, height-(border_margin-font_size));
   textAlign(LEFT, TOP);
-  text(english_text, (width/2) + (border_margin/2), border_margin*3, (width/2)-(border_margin*1.5), height-(border_margin*4));
+  text(english_text, (width/2) + (border_margin/2)+smaller_margin, border_margin*3+smaller_margin, (width/2)-(border_margin*1.5)+smaller_margin, height-(border_margin*4)+smaller_margin);
   if (row_number == 9) textFont(georgian);
   if (row_number == 11) textFont(greek);
   if (row_number == 12) textFont(gujarati);
@@ -147,11 +147,10 @@ void draw(){
   if (row_number == 88) textFont(armenian);
   if (row_number == 92) textFont(bengali);
   if (row_number == 98) textFont(chinese);
-  text(native_text, border_margin, border_margin*3, (width/2)-(border_margin*1.5), height-(border_margin*4));
+  text(native_text, border_margin+smaller_margin, border_margin*3+smaller_margin, (width/2)-(border_margin*1.5)+smaller_margin, height-(border_margin*4)+smaller_margin);
 }
 
 void get_new_file(){
-  //table = loadTable(list_path + date + ".csv");
   table = loadTable(list_path + "article_titles.csv");
   boolean foundfile = false;
   while (foundfile == false){
@@ -161,11 +160,9 @@ void get_new_file(){
           file_name = row.getString(1);
           title = file_name.replace (".csv", "");
           title_width = textWidth(title);
-          println(article_path + file_name);
           foundfile = true;
       }
       catch (Exception e) {
-          println("no more files :(");
           for (int i = 1; i < table.getRowCount(); i++){
             table.setString(i, 0, "NO");
           }
@@ -173,7 +170,6 @@ void get_new_file(){
       }
     }
   saveTable(table, list_path + "article_titles.csv");
-  //saveTable(table, list_path + date + ".csv");
 }
 
 void get_new_text(){
@@ -188,7 +184,6 @@ void get_new_text(){
           loaded = true;
       }
       catch (Exception e) {
-          println("couldn't load file");
           get_new_file();
           loaded = false;
       }
