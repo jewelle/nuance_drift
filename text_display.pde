@@ -8,9 +8,9 @@ String native_lang = "";
 String title = "";
 float title_width;
 String file_name;
-int font_size = 30;
-int border_margin = 60;
-int smaller_margin = 30;
+int font_size = 40;
+int border_margin = 80;
+int smaller_margin = 50;
 long current_time;
 long starting_time;
 long elapsed_time;
@@ -94,26 +94,27 @@ void draw(){
     x = int(map(row_number, halfway_done, number_of_rows, 285, 200));
   }
   background(x, 44, 100);
-  fill(0, 0, 100);
+  fill(0, 0, 100); // white
   // left text box
   rect(border_margin, border_margin*3, (width/2)-(border_margin*1.5), height-(border_margin*4), 15); 
   // right text box
   rect((width/2) + (border_margin/2), border_margin*3, (width/2)-(border_margin*1.5), height-(border_margin*4), 15);
-  fill(0);
+  // language titles
+  fill(180, 0, 54); // grey
   textFont(normal_font);
   textAlign(RIGHT, BOTTOM);
   text(native_lang, (width/2) - (border_margin*1.5) + border_margin, border_margin*3);
   textAlign(LEFT, BOTTOM);
   text("English", (width/2) + (border_margin/2), border_margin*3);
   // loading bar
-  fill(0);
+  fill(180, 0, 54); // grey
   textAlign(RIGHT, CENTER);
   text(row_number + "/" + number_of_rows, border_margin*2, border_margin*1.5);
-  fill(0, 0, 100);
+  fill(0, 0, 100); // white
   rect(border_margin*2 +10, border_margin, width - ((border_margin*4) + 20), border_margin, 15);
-  fill(180, 0, 54);
+  fill(180, 0, 54); // grey
   rect(border_margin*2 +10, border_margin, map(row_number, 0, number_of_rows, 0, width - ((border_margin*4) + 20)), border_margin, 15);
-  fill(0);
+  fill(180, 0, 54); // grey
   // original article title
   textAlign(CENTER, TOP);
   text("\"" + title + "\"", width/2, height-(border_margin-font_size));
