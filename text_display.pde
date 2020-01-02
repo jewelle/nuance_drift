@@ -1,7 +1,7 @@
 String list_path = "/home/pi/Documents/nuance-drift/";
 String article_path = "/home/pi/Documents/nuance-drift/";
 Table table;
-int x = 200;
+int x = 210;
 String english_text = "";
 String native_text = "";
 String native_lang = "";
@@ -88,19 +88,19 @@ void draw(){
       starting_time = millis();
   }
   if (row_number <= halfway_done){
-    x = int(map(row_number, 0, halfway_done, 200, 285));
+    x = int(map(row_number, 0, halfway_done, 210, 285));
   }
   else {
-    x = int(map(row_number, halfway_done, number_of_rows, 285, 200));
+    x = int(map(row_number, halfway_done, number_of_rows, 285, 210));
   }
   background(x, 44, 100);
   fill(0, 0, 100); // white
+  textFont(normal_font);
 /*  // left text box
   rect(border_margin, border_margin*3, (width/2)-(border_margin*1.5), height-(border_margin*4), 15); 
   // right text box
   rect((width/2) + (border_margin/2), border_margin*3, (width/2)-(border_margin*1.5), height-(border_margin*4), 15);
   // language titles
-  textFont(normal_font);
   textAlign(RIGHT, BOTTOM);
   text(native_lang, (width/2) - (border_margin*1.5) + border_margin, border_margin*3);
   textAlign(LEFT, BOTTOM);
