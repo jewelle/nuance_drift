@@ -100,26 +100,25 @@ void draw(){
   // right text box
   rect((width/2) + (border_margin/2), border_margin*3, (width/2)-(border_margin*1.5), height-(border_margin*4), 15);
   // language titles
-  fill(180, 0, 54); // grey
+  fill(0, 0, 100); // white
   textFont(normal_font);
   textAlign(RIGHT, BOTTOM);
   text(native_lang, (width/2) - (border_margin*1.5) + border_margin, border_margin*3);
   textAlign(LEFT, BOTTOM);
   text("English", (width/2) + (border_margin/2), border_margin*3);
   // loading bar
-  fill(180, 0, 54); // grey
+  fill(0, 0, 100); // white
   textAlign(RIGHT, CENTER);
   text(row_number + "/" + number_of_rows, border_margin*2, border_margin*1.5);
-  fill(0, 0, 100); // white
   rect(border_margin*2 +10, border_margin, width - ((border_margin*4) + 20), border_margin, 15);
   fill(180, 0, 54); // grey
   rect(border_margin*2 +10, border_margin, map(row_number, 0, number_of_rows, 0, width - ((border_margin*4) + 20)), border_margin, 15);
-  fill(180, 0, 54); // grey
+  fill(0, 0, 100); // white
   // original article title
   textAlign(CENTER, TOP);
   text("\"" + title + "\"", width/2, height-(border_margin-font_size));
   textAlign(LEFT, TOP);
-  text(english_text, (width/2) + (border_margin/2)+smaller_margin, border_margin*3+smaller_margin, (width/2)-(border_margin*1.5)-smaller_margin, height-(border_margin*4)-smaller_margin);
+  text(english_text, (width/2) + (border_margin/2)+smaller_margin, border_margin*3+smaller_margin, (width/2)-(border_margin*1.5)-(smaller_margin*2), height-(border_margin*4)-(smaller_margin*2));
   if (row_number == 9) textFont(georgian);
   if (row_number == 11) textFont(greek);
   if (row_number == 12) textFont(gujarati);
@@ -150,7 +149,7 @@ void draw(){
   if (row_number == 88) textFont(armenian);
   if (row_number == 92) textFont(bengali);
   if (row_number == 98) textFont(chinese);
-  text(native_text, border_margin+smaller_margin, border_margin*3+smaller_margin, (width/2)-(border_margin*1.5)-smaller_margin, height-(border_margin*4)-smaller_margin);
+  text(native_text, border_margin+smaller_margin, border_margin*3+smaller_margin, (width/2)-(border_margin*1.5)-(smaller_margin*2), height-(border_margin*4)-(smaller_margin*2));
 }
 
 void get_new_file(){
