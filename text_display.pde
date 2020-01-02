@@ -8,7 +8,7 @@ String native_lang = "";
 String title = "";
 float title_width;
 String file_name;
-int font_size = 17;
+int font_size = 30;
 int border_margin = 60;
 int smaller_margin = 30;
 long current_time;
@@ -96,9 +96,9 @@ void draw(){
   background(x, 44, 100);
   fill(0, 0, 100);
   // left text box
-  rect(border_margin, border_margin*3, (width/2)-(border_margin*1.5), height-(border_margin*4), 7); 
+  rect(border_margin, border_margin*3, (width/2)-(border_margin*1.5), height-(border_margin*4), 15); 
   // right text box
-  rect((width/2) + (border_margin/2), border_margin*3, (width/2)-(border_margin*1.5), height-(border_margin*4), 7);
+  rect((width/2) + (border_margin/2), border_margin*3, (width/2)-(border_margin*1.5), height-(border_margin*4), 15);
   fill(0);
   textFont(normal_font);
   textAlign(RIGHT, BOTTOM);
@@ -106,17 +106,19 @@ void draw(){
   textAlign(LEFT, BOTTOM);
   text("English", (width/2) + (border_margin/2), border_margin*3);
   // loading bar
+  fill(0);
   textAlign(RIGHT, CENTER);
   text(row_number + "/" + number_of_rows, border_margin*2, border_margin*1.5);
   fill(0, 0, 100);
-  rect(border_margin*2 +10, border_margin, width - ((border_margin*4) + 20), border_margin, 7);
+  rect(border_margin*2 +10, border_margin, width - ((border_margin*4) + 20), border_margin, 15);
   fill(180, 0, 54);
-  rect(border_margin*2 +10, border_margin, map(row_number, 0, number_of_rows, 0, width - ((border_margin*4) + 20)), border_margin, 7);
+  rect(border_margin*2 +10, border_margin, map(row_number, 0, number_of_rows, 0, width - ((border_margin*4) + 20)), border_margin, 15);
+  fill(0);
   // original article title
   textAlign(CENTER, TOP);
   text("\"" + title + "\"", width/2, height-(border_margin-font_size));
   textAlign(LEFT, TOP);
-  text(english_text, (width/2) + (border_margin/2)+smaller_margin, border_margin*3+smaller_margin, (width/2)-(border_margin*1.5)+smaller_margin, height-(border_margin*4)+smaller_margin);
+  text(english_text, (width/2) + (border_margin/2)+smaller_margin, border_margin*3+smaller_margin, (width/2)-(border_margin*1.5)-smaller_margin, height-(border_margin*4)-smaller_margin);
   if (row_number == 9) textFont(georgian);
   if (row_number == 11) textFont(greek);
   if (row_number == 12) textFont(gujarati);
@@ -147,7 +149,7 @@ void draw(){
   if (row_number == 88) textFont(armenian);
   if (row_number == 92) textFont(bengali);
   if (row_number == 98) textFont(chinese);
-  text(native_text, border_margin+smaller_margin, border_margin*3+smaller_margin, (width/2)-(border_margin*1.5)+smaller_margin, height-(border_margin*4)+smaller_margin);
+  text(native_text, border_margin+smaller_margin, border_margin*3+smaller_margin, (width/2)-(border_margin*1.5)-smaller_margin, height-(border_margin*4)-smaller_margin);
 }
 
 void get_new_file(){
