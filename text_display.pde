@@ -1,6 +1,7 @@
 String list_path = "/Users/ericajewell/Downloads/NUANCE-DRIFT/";
 String article_path = "/Users/ericajewell/Downloads/NUANCE-DRIFT/articles/";
 Table table;
+int x = 200;
 String english_text = "";
 String native_text = "";
 String native_lang = "";
@@ -8,12 +9,14 @@ String title = "";
 float title_width;
 String file_name;
 int font_size = 17;
+int border_margin = 40;
 long current_time;
 long starting_time;
 long elapsed_time;
-int slide_delay = 1500; //4290;
+int slide_delay = 500; //4290;
 int row_number = 0;
 int number_of_rows;
+int halfway_done;
 PFont normal_font, georgian, greek, gujarati, hebrew, hindi, japanese, kannada, 
       kazakh, khmer, korean, kurdish, lao, macedonian, malayalam, marathi, 
       myanmar, nepali, pashto, persian, punjabi, sindhi, sinhala, tamil, telugu, 
@@ -21,12 +24,12 @@ PFont normal_font, georgian, greek, gujarati, hebrew, hindi, japanese, kannada,
 //String date = "";
 
 void setup(){
-  size(1300,800);
-  surface.setLocation(300,400);
+  size(1000,600);
+  colorMode(HSB, 360, 100, 100); 
   //fullScreen(2);
   textSize(font_size);
   normal_font = createFont("Rubik-BoldItalic.ttf", font_size);
-  georgian = createFont("NotoSansGeorgian-CondensedBlack.ttf", font_size);
+ georgian = createFont("NotoSansGeorgian-CondensedBlack.ttf", font_size);
   greek = createFont("NotoSans-BlackItalic.ttf", font_size);
   gujarati = createFont("NotoSansGujarati-Bold.ttf", font_size);
   hebrew = createFont("NotoSansHebrew-Black.ttf", font_size);
@@ -74,6 +77,7 @@ void setup(){
   }
   get_new_text();
   number_of_rows = table.getRowCount() - 1;
+  halfway_done = number_of_rows/2;
   starting_time = millis();
 }
 
@@ -83,15 +87,36 @@ void draw(){
   if (elapsed_time >= slide_delay){
       get_new_text();
       number_of_rows = table.getRowCount() - 1;
+      halfway_done = number_of_rows/2;
       starting_time = millis();
   }
-  background(255,255,255);
-  fill(50);
+  if (row_number <= halfway_done){
+    x = int(map(row_number, 0, halfway_done, 200, 285));
+  }
+  else {
+    x = int(map(row_number, halfway_done, number_of_rows, 285, 200));
+  }
+  background(x, 44, 100);
+  fill(0, 0, 100);
+  rect(border_margin*2 +10, border_margin, width - ((border_margin*4) + 20), border_margin, 7);
+  fill(180, 0, 54);
+  rect(border_margin*2 +10, border_margin, map(row_number, 0, number_of_rows, 0, width - ((border_margin*4) + 20)), border_margin, 7);
+  fill(0, 0, 100);
+  rect(border_margin, border_margin*3, (width/2)-(border_margin*1.5), height-(border_margin*4), 7); 
+  rect((width/2) + (border_margin/2), border_margin*3, (width/2)-(border_margin*1.5), height-(border_margin*4), 7);
+  fill(0);
   textFont(normal_font);
-  text(title, (width/2)-(title_width/2), 30);
-  text(native_lang, 30, 70);
-  text("English", 610, 70);
-  text(english_text, 610, 90, 550, 650);
+  textAlign(RIGHT, CENTER);
+  text(row_number + "/" + number_of_rows, border_margin*2, border_margin*1.5);
+  textAlign(RIGHT, BOTTOM);
+  text(native_lang, (width/2) - (border_margin*1.5) + border_margin, border_margin*3);
+  textAlign(LEFT, BOTTOM);
+  text("English", (width/2) + (border_margin/2), border_margin*3);
+  textAlign(CENTER, TOP);
+  //text("TITLE OF ORIGINAL ARTICLE:", width/2, height-border_margin);
+  text("\"" + title + "\"", width/2, height-(border_margin-font_size));
+  textAlign(LEFT, TOP);
+  text(english_text, (width/2) + (border_margin/2), border_margin*3, (width/2)-(border_margin*1.5), height-(border_margin*4));
   if (row_number == 9) textFont(georgian);
   if (row_number == 11) textFont(greek);
   if (row_number == 12) textFont(gujarati);
@@ -122,7 +147,7 @@ void draw(){
   if (row_number == 88) textFont(armenian);
   if (row_number == 92) textFont(bengali);
   if (row_number == 98) textFont(chinese);
-  text(native_text, 30, 90, 550, 650);
+  text(native_text, border_margin, border_margin*3, (width/2)-(border_margin*1.5), height-(border_margin*4));
 }
 
 void get_new_file(){
