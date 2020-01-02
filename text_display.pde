@@ -100,23 +100,22 @@ void draw(){
   // right text box
   rect((width/2) + (border_margin/2), border_margin*3, (width/2)-(border_margin*1.5), height-(border_margin*4), 15);
   // language titles
-  fill(0); // black
   textFont(normal_font);
   textAlign(RIGHT, BOTTOM);
   text(native_lang, (width/2) - (border_margin*1.5) + border_margin, border_margin*3);
   textAlign(LEFT, BOTTOM);
   text("English", (width/2) + (border_margin/2), border_margin*3);
-  // loading bar
-  fill(0, 0, 100); // white
-  textAlign(RIGHT, CENTER);
-  text(row_number + "/" + number_of_rows, border_margin*2, border_margin*1.5);
-  rect(border_margin*2 +10, border_margin, width - ((border_margin*4) + 20), border_margin, 15);
-  fill(180, 0, 54); // grey
-  rect(border_margin*2 +10, border_margin, map(row_number, 0, number_of_rows, 0, width - ((border_margin*4) + 20)), border_margin, 15);
-  fill(0, 0, 100); // white
   // original article title
   textAlign(CENTER, TOP);
-  text("\"" + title + "\"", width/2, height-(border_margin-font_size));
+  text("\"" + title + "\"", width/2, border_margin*1.5);
+  // loading bar
+  textAlign(RIGHT, CENTER);
+  text(row_number + "/" + number_of_rows, border_margin*2, height-(border_margin-font_size));
+  rect(border_margin*2 +10, height-(border_margin-font_size), width - ((border_margin*4) + 20), border_margin, 15);
+  fill(180, 0, 54); // grey
+  rect(border_margin*2 +10, border_margin, map(row_number, 0, number_of_rows, 0, width - ((border_margin*4) + 20)), border_margin, 15);
+  // text
+  fill(180, 0, 54); // grey
   textAlign(LEFT, TOP);
   text(english_text, (width/2) + (border_margin/2)+smaller_margin, border_margin*3+smaller_margin, (width/2)-(border_margin*1.5)-(smaller_margin*2), height-(border_margin*4)-(smaller_margin*2));
   if (row_number == 9) textFont(georgian);
