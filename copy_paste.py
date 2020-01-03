@@ -89,6 +89,7 @@ def scrape_urls():
 
     # - Local 10
     driver.get("https://www.local10.com/")
+    driver.maximize_window()
     while True:
         try:
             elems = driver.find_elements_by_xpath("//a[@href]")
