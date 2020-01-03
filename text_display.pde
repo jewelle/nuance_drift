@@ -14,7 +14,7 @@ int smaller_margin = 50;
 long current_time;
 long starting_time;
 long elapsed_time;
-int slide_delay = 5000;
+int slide_delay = 10000;
 int row_number = 0;
 int number_of_rows;
 int halfway_done;
@@ -96,27 +96,13 @@ void draw(){
   background(x, 44, 100);
   fill(0, 0, 100); // white
   textFont(normal_font);
-/*  // left text box
-  rect(border_margin, border_margin*3, (width/2)-(border_margin*1.5), height-(border_margin*4), 15); 
-  // right text box
-  rect((width/2) + (border_margin/2), border_margin*3, (width/2)-(border_margin*1.5), height-(border_margin*4), 15);
-  // language titles
-  textAlign(RIGHT, BOTTOM);
-  text(native_lang, (width/2) - (border_margin*1.5) + border_margin, border_margin*3);
-  textAlign(LEFT, BOTTOM);
-  text("English", (width/2) + (border_margin/2), border_margin*3);
-*/  // original article title
+  textAlign(CENTER, TOP);
+  textSize(25);
+  text(native_lang, width/2, height - border_margin);
+  textSize(font_size);
   textAlign(CENTER, TOP);
   text(title, width/2, border_margin*1.5);
-/*  // loading bar
-  textAlign(RIGHT, CENTER);
-  text(row_number + "/" + number_of_rows, border_margin*2, height-(border_margin-font_size));
-  rect(border_margin*2 +10, height-(border_margin-font_size), width - ((border_margin*4) + 20), border_margin, 15);
-  fill(180, 0, 54); // grey
-  rect(border_margin*2 +10, border_margin, map(row_number, 0, number_of_rows, 0, width - ((border_margin*4) + 20)), border_margin, 15);
-  // text
-  fill(180, 0, 54); // grey
-*/  textAlign(LEFT, TOP);
+  textAlign(LEFT, TOP);
   text(english_text, (width/2) + (border_margin/2)+smaller_margin, border_margin*3+smaller_margin, (width/2)-(border_margin*1.5)-(smaller_margin*2), height-(border_margin*4)-(smaller_margin*2));
   if (row_number == 9) textFont(georgian);
   if (row_number == 11) textFont(greek);
@@ -159,8 +145,6 @@ void get_new_file(){
           TableRow row = table.findRow("NO", 0);
           row.setString(0, "YES");
           file_name = row.getString(1);
-          title = file_name.replace (".csv", "");
-          title_width = textWidth(title);
           foundfile = true;
       }
       catch (Exception e) {
@@ -175,6 +159,10 @@ void get_new_file(){
 
 void get_new_text(){
   row_number += 1;
+  if (row_number == 1){
+    title = file_name.replace (".csv", "");
+    title_width = textWidth(title);
+  }
   if (row_number > number_of_rows){
     row_number = 0;
     get_new_file();
