@@ -107,7 +107,7 @@ void draw(){
   text("English", (width/2) + (border_margin/2), border_margin*3);
 */  // original article title
   textAlign(CENTER, TOP);
-  text("\"" + title + "\"", width/2, border_margin*1.5);
+  text(title, width/2, border_margin*1.5);
 /*  // loading bar
   textAlign(RIGHT, CENTER);
   text(row_number + "/" + number_of_rows, border_margin*2, height-(border_margin-font_size));
