@@ -96,7 +96,7 @@ void draw(){
   background(x, 44, 100);
   fill(0, 0, 100); // white
   textFont(normal_font);
-  textAlign(CENTER, TOP);
+  textAlign(CENTER, BOTTOM);
   textSize(25);
   text(native_lang, width/2, height - border_margin);
   textSize(font_size);
