@@ -1,104 +1,106 @@
 import processing.video.*;
 Movie background;
 
-String path = "";
-String[] lines;
+String list_path = "";
+String article_path = "";
 Table table;
 String text = "";
-String file_name;
-PFont myFont;
-int fontSize = 17;
-//int fontSize = 70;
+String file_name = "";
+String title = "";
+float title_width;
+int font_size = 30;
+int margin_LR = 180;
+int margin_TB = 130;
 long current_time;
 long starting_time;
 long elapsed_time;
-int slide_delay = 4290;
+int slide_delay = 10000;
 int row_number = 0;
-String date = "";
-ArrayList<Mover> movers = new ArrayList();
+int number_of_rows;
+PFont normal_font;
 
 void setup(){
-  size(1300,800,P3D);
-  //  size(1000,400,P3D);
+  //size(500, 500);
+  fullScreen();
   background(0);
-  myFont = createFont("Rubik-BoldItalic.ttf", fontSize);
-  textFont(myFont);
-  textSize(fontSize);
+  textSize(font_size);
+  normal_font = createFont("Rubik-BoldItalic.ttf", font_size);
+  textFont(normal_font);
   noStroke();
-  date = year() + "-" + month() + "-" + day();
   get_new_file();
   boolean loaded = false;
   while (loaded == false){
     try {
-        table = loadTable(path + file_name);
+        table = loadTable(article_path + file_name);
         loaded = true;
     }
     catch (Exception e) {
-        println("couldn't load file");
+        e.printStackTrace();
         get_new_file();
         loaded = false;
     }
   }
   get_new_text();
+  number_of_rows = table.getRowCount() - 1;
   starting_time = millis();
-  background = new Movie(this, "water.mov");
+  background = new Movie(this, "water.mp4");
   background.loop();
 }
 
 void draw(){ 
-  //slide_delay = int(map(mouseX, 0, width, 3000, 6000));
-  //println(slide_delay);
   current_time = millis();
-  elapsed_time = current_time - starting_time;
-  // set off get_new_text every so often  
+  elapsed_time = current_time - starting_time;  
   if (elapsed_time >= slide_delay){
       get_new_text();
+      number_of_rows = table.getRowCount() - 1;
       starting_time = millis();
   }
-  fill(0);
+  tint(0, 153, 204, 126);
   //tint(255, 20);
   image(background, 0, 0);
-  for (Mover m : movers) {
-    m.updateBall();
-    m.display();
-  }
+  fill(255); // white
+  textAlign(LEFT, TOP);
+  text(text, margin_LR, margin_TB, width-(margin_LR*2), height-(margin_TB*2));
 }
 
-
 void get_new_file(){
-  table = loadTable(path + date + ".csv");
+  table = loadTable(list_path + "projection.csv");
   boolean foundfile = false;
   while (foundfile == false){
      try {
           TableRow row = table.findRow("NO", 0);
           row.setString(0, "YES");
           file_name = row.getString(1);
-          println(path + file_name);
+          println(file_name);
           foundfile = true;
       }
       catch (Exception e) {
-          println("no more files :(");
+          println("no more files");
           for (int i = 1; i < table.getRowCount(); i++){
             table.setString(i, 0, "NO");
           }
           foundfile = false;
       }
     }
-  saveTable(table, path + date + ".csv");
+  saveTable(table, list_path + "projection.csv");
 }
 
 void get_new_text(){
   row_number += 1;
-  if (row_number > 103){
+  if (row_number == 1){
+    title = file_name.replace (".csv", "");
+    title_width = textWidth(title);
+  }
+  if (row_number > number_of_rows){
+    row_number = 0;
     get_new_file();
     boolean loaded = false;
     while (loaded == false){
       try {
-          table = loadTable(path + file_name);
+          table = loadTable(article_path + file_name);
           loaded = true;
       }
       catch (Exception e) {
-        println("couldn't load file");
           get_new_file();
           loaded = false;
       }
@@ -106,58 +108,9 @@ void get_new_text(){
   }
   else {
     text = table.getString(row_number, 2);
-    String[] lines = splitTokens(text, "\n");
-    //String[] lines={"NUANCE/DRIFT"};
-    movers.clear();
-    for (int i=0; i<lines.length; i++){
-      //movers.add(new Mover( lines[i], height/2, i*.1 ) );
-      movers.add(new Mover( lines[i], 30+ i*60, i*.1 ) );
-    }
   }
 }
 
 void movieEvent(Movie m){
   m.read();
 }  
-
-class Mover{
- 
-  PVector location;
- 
-  // used in the sin formula :
-  float locationX;
-  float angle; // = random(0, 5*TWO_PI);
-  //float radius = 20; // random(40, 390);
-  float radius = 10; // random(40, 390);
-  float angleSpeed = .02; // random (.01, .1);
- 
-  String text1;
- 
-  //constr
-  Mover(String text_, float y_, float angle_) {
-    text1=text_;
-    location = new PVector(-1, y_);
- 
-    //locationX=random(-100, width-55); 
- 
-    angle=angle_;
- 
-
-    stroke(0);
-    strokeWeight(2);
-    fill(127);
-    noStroke();
-  } //constr
- 
-  void updateBall() {
-    //location.x = radius * sin (angle) + width/2 - 300;
-    location.x = radius * sin (angle) + 20;
-    //location.x = radius * sin (angle) +locationX;
-    angle+=angleSpeed;
-  }
- 
-  void display() {
-    textSize(fontSize);
-    text(text1, location.x, location.y, 1200, 1000);
-  }
-}
