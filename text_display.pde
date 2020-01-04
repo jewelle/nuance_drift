@@ -1,13 +1,16 @@
-String list_path = "/home/pi/Documents/nuance-drift/";
-String article_path = "/home/pi/Documents/nuance-drift/";
+String list_path = "/home/pi/";
+String article_path = "/home/pi/";
 Table table;
 int x = 210;
 String english_text = "";
 String native_text = "";
 String native_lang = "";
-String title = "";
+String title_1 = " ";
+String title_2 = " ";
+String[] separated;
 float title_width;
 String file_name;
+int first_half;
 int font_size = 40;
 int border_margin = 80;
 int smaller_margin = 50;
@@ -101,7 +104,8 @@ void draw(){
   text(native_lang, width/2, height - border_margin);
   textSize(font_size);
   textAlign(CENTER, TOP);
-  text(title, width/2, border_margin*1.5);
+  text(title_1, width/2, border_margin*1.5);
+  text(title_2, width/2, border_margin*1.5 + font_size);
   textAlign(LEFT, TOP);
   text(english_text, (width/2) + (border_margin/2)+smaller_margin, border_margin*3+smaller_margin, (width/2)-(border_margin*1.5)-(smaller_margin*2), height-(border_margin*4)-(smaller_margin*2));
   if (row_number == 9) textFont(georgian);
@@ -160,8 +164,28 @@ void get_new_file(){
 void get_new_text(){
   row_number += 1;
   if (row_number == 1){
-    title = file_name.replace (".csv", "");
-    title_width = textWidth(title);
+    title_1 = "";
+    title_2 = "";
+    title_1 = file_name.replace (".csv", "");
+    title_width = textWidth(title_1);
+    if (title_width > width-(border_margin*2)){
+      separated = splitTokens(title_1);
+      if (separated.length % 2 == 1){ // if the title has an odd number of words, take a half and round it up
+        first_half = round(separated.length/2);
+        
+      }
+      else { // if the title has an even number of words, we can divide equally
+        first_half = separated.length/2;
+      }
+      title_1 = "";
+      title_2 = "";
+      for (int i = 0; i < first_half; i++){
+        title_1 = title_1 + " " + separated[i];
+      }
+      for (int i = first_half; i < separated.length; i++){
+        title_2 = title_2 + " " + separated[i];
+      }
+    }
   }
   if (row_number > number_of_rows){
     row_number = 0;
